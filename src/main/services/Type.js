@@ -1,4 +1,4 @@
-import { dy, bjh, blbl, sph, tt, ks, xhs, juejin, fqsp } from "./upLoad";
+import { dy, bjh, blbl, sph, tt, ks, xhs, xhsImage, juejin, fqsp } from "./upLoad";
 import zt from "./zt";
 
 
@@ -11,6 +11,7 @@ export default {
   头条: tt,
   快手: ks,
   小红书: xhs,
+  小红书图片: xhsImage,
   掘金: juejin,
   番茄视频: fqsp,
   // 获取发布状态

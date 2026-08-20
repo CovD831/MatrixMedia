@@ -6,7 +6,10 @@ export const XHS_PLATFORM_STAGGER_MIN_MS = 15000;
 export const XHS_PLATFORM_STAGGER_MAX_MS = 30000;
 
 export function isXhsPlatform(pt) {
-  return String(pt || "").includes("小红书");
+  return (
+    String(pt || "").includes("小红书") ||
+    String(pt || "").includes("小红书图片")
+  );
 }
 
 export function applyXhsConservativePublishOptions(payload) {

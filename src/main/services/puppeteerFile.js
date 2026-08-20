@@ -840,7 +840,13 @@ async function doUpload(data, transport, queueDone, runtimeTask) {
           }
           const currentUrl = page.url();
           if (isExpectedPublishUrl(data, currentUrl)) {
-            const action = Type[data.pt];
+            // 图片任务（url 含 target=image）优先匹配 "<平台>图片" 处理器（如 小红书图片 → xhsImage），
+            // 否则回退到平台视频处理器；普通视频任务直接取 Type[data.pt]。
+            const isImageTask =
+              data.url && String(data.url).includes("target=image");
+            const action = isImageTask
+              ? Type[String(data.pt) + "图片"] || Type[data.pt]
+              : Type[data.pt];
             if (typeof action !== "function") {
               // pt 没注册处理器属于配置/调用方错误，重试 5 次也变不出来 handler，
               // 反而会反复打开同一个 URL，触发站点重复登录（典型例子：账号管理

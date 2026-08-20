@@ -117,10 +117,16 @@ async function runSingleFilePublishInner(
     requestDraftMode: Boolean(v.draft),
   });
 
+  // 按文件类型自动选择发布通道：图片走 uploadImage（textType=image），其余走 upload
+  const isImageFile = /\.(jpe?g|png|gif|webp|bmp|heic)$/i.test(resolvedFile);
+  const textType = isImageFile ? "image" : "local";
+  const uploadUrl =
+    (isImageFile && cfg.uploadImage) || cfg.upload || "";
+
   const taskPayload = {
     taskId: Date.now() + Math.random(),
     bookName,
-    textType: "local",
+    textType,
     data: {
       textOtherName: stem,
       bt1,
@@ -129,7 +135,7 @@ async function runSingleFilePublishInner(
       bdText: "",
       creativeStatement: normalizeCreativeStatement(v.creativeStatement || ""),
     },
-    url: cfg.upload,
+    url: uploadUrl,
     show: v.show,
     mmCliSuppressWindow: false,
     publishMode: effectivePublishMode.publishMode,
@@ -152,7 +158,7 @@ async function runSingleFilePublishInner(
   const recordItem = {
     bookName,
     textOtherName: stem,
-    textType: "local",
+    textType,
     pt: v.platform,
     selectedFile,
     bt: bt1,
@@ -168,7 +174,7 @@ async function runSingleFilePublishInner(
     phone: derivePhoneForRecord(v),
     partition: v.partition,
     url: cfg.listIndex,
-    uploadUrl: cfg.upload,
+    uploadUrl,
     date: recordDate,
     publishAttemptCount: 1,
     republishCount: 0,

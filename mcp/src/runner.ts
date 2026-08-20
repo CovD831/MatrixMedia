@@ -11,11 +11,17 @@ export interface CliResult {
 
 const VERSION_NOISE = /^\d+\.\d+\.\d+/;
 const DEVTOOLS_NOISE = /^DevTools listening/;
+// [startup] / [xhs] / [publish] 等主进程日志行会混进 stdout，导致整段 JSON 解析失败
+const BRACKET_LOG_NOISE = /^\[[^\]]+\]/;
 const TIMEOUT_MS = 2400000;
 
 function isNoiseLine(line: string): boolean {
   const trimmed = line.trim();
-  return VERSION_NOISE.test(trimmed) || DEVTOOLS_NOISE.test(trimmed);
+  return (
+    VERSION_NOISE.test(trimmed) ||
+    DEVTOOLS_NOISE.test(trimmed) ||
+    BRACKET_LOG_NOISE.test(trimmed)
+  );
 }
 
 function stripNoiseLines(raw: string): string {

@@ -30,6 +30,34 @@ export const constantRouterMap = [
     ],
   },
   {
+    path: "/image-manager",
+    component: Layout,
+    redirect: "/image-manager",
+    hidden: true,
+    children: [
+      {
+        path: "/image-manager",
+        name: "图片管理",
+        component: () => import("@/views/imageManager/index"),
+        meta: { noSlide: true, title: "图片管理" },
+      },
+    ],
+  },
+  {
+    path: "/source-pool",
+    component: Layout,
+    redirect: "/source-pool",
+    hidden: true,
+    children: [
+      {
+        path: "/source-pool",
+        name: "素材池",
+        component: () => import("@/views/sourcePool/index"),
+        meta: { noSlide: true, title: "素材池" },
+      },
+    ],
+  },
+  {
     path: "*",
     component: () => import("@/views/404"),
     hidden: true,

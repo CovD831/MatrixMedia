@@ -8,6 +8,7 @@ import { listAccountsTool, handleListAccounts } from './tools/accounts.js';
 import { listHistoryTool, handleListHistory } from './tools/history.js';
 import { publishArticleTool, handlePublishArticle } from './tools/publishArticle.js';
 import { publishVideoTool, handlePublishVideo } from './tools/publish.js';
+import { publishImageTool, handlePublishImage } from './tools/publishImage.js';
 
 const server = new Server(
   { name: 'matrixmedia', version: '0.1.0' },
@@ -15,7 +16,15 @@ const server = new Server(
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return { tools: [listAccountsTool, listHistoryTool, publishVideoTool, publishArticleTool] };
+  return {
+    tools: [
+      listAccountsTool,
+      listHistoryTool,
+      publishVideoTool,
+      publishArticleTool,
+      publishImageTool,
+    ],
+  };
 });
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -47,6 +56,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'publish_article':
         result = await handlePublishArticle(args);
         break;
+      case 'publish_image': {
+        const progressToken = (request.params as any)._meta?.progressToken as string | undefined;
+        result = await handlePublishImage(args,
+          progressToken
+            ? (elapsed: number) => {
+                server.notification({
+                  method: 'notifications/progress',
+                  params: { progressToken, progress: Math.floor(elapsed / 1000), total: 2100 },
+                });
+              }
+            : undefined
+        );
+        break;
+      }
       default:
         throw new Error('Unknown tool: ' + name);
     }

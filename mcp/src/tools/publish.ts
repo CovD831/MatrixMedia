@@ -9,6 +9,8 @@ const PLATFORM_CN: Record<string, string> = {
   bjh: "百家号",
   tt: "头条",
   sph: "视频号",
+  xhs: "小红书",
+  fqsp: "番茄视频",
 };
 
 // Derives the Electron session partition string from phone + platform code.

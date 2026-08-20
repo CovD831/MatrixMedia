@@ -13,6 +13,7 @@ const LOGIN_COOKIE_RULE = {
   番茄视频: c => c.name === "sessionid" && !!c.value,
   哔哩哔哩: c => c.name === "SESSDATA" && !!c.value,
   快手: c => c.name === "userId" && !!c.value,
+  小红书: c => c.name === "web_session" && !!c.value,
   掘金: c => c.name === "passport_csrf_token" && !!c.value && c.value.length > 10,
 };
 

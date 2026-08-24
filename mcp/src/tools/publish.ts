@@ -43,6 +43,16 @@ export const publishVideoTool: Tool = {
         type: "string",
         description: "Video title.",
       },
+      description: {
+        type: "string",
+        description:
+          "Optional video description or body. Douyin/Kuaishou/Shipinhao append tags after this text; Xiaohongshu uses it as body; Bilibili uses it as the introduction field.",
+      },
+      shortTitle: {
+        type: "string",
+        description:
+          "Optional Shipinhao-only short title, recommended 6-16 characters. Ignored by other platforms.",
+      },
       phone: {
         type: "string",
         description:
@@ -50,7 +60,8 @@ export const publishVideoTool: Tool = {
       },
       bt2: {
         type: "string",
-        description: "Optional secondary title / 第二标题.",
+        description:
+          "Legacy compatibility: Shipinhao short title, or description on other platforms. Prefer description / shortTitle.",
       },
       tags: {
         type: "string",
@@ -114,6 +125,8 @@ export async function handlePublishVideo(
   const platform = args.platform;
   const file = args.file;
   const title = args.title;
+  const description = args.description;
+  const shortTitle = args.shortTitle;
   const phone = args.phone;
   const bt2 = args.bt2;
   const tags = args.tags;
@@ -169,6 +182,8 @@ export async function handlePublishVideo(
     String(title),
     "--partition",
     partition,
+    ...(description ? ["--description", String(description)] : []),
+    ...(shortTitle ? ["--short-title", String(shortTitle)] : []),
     ...(bt2 ? ["--bt2", String(bt2)] : []),
     ...(tags ? ["--tags", String(tags)] : []),
     ...(address ? ["--address", String(address)] : []),

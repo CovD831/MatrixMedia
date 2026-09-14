@@ -92,7 +92,21 @@ function readOrder(root, id) {
         return { name: f, size: st.size, isImage: /\.(png|jpe?g|webp|gif)$/i.test(f) };
       });
   }
-  return { id, manifest, assets, pkg, dir };
+  // 顶部摊平常用字段，视图直接取 current.line / current.title 等
+  return {
+    id,
+    line: manifest.line || "hotspot",
+    title: manifest.title || id,
+    column: manifest.column || "",
+    state: manifest.state || "SELECTED",
+    updatedAt: manifest.updated_at || null,
+    channels: manifest.channels || [],
+    gateHistory: manifest.gate_history || [],
+    manifest,
+    assets,
+    pkg,
+    dir,
+  };
 }
 
 function listOrders(root) {

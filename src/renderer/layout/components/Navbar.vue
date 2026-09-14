@@ -7,9 +7,9 @@
         mode="horizontal"
         @select="selectFn"
       >
-        <el-menu-item index="/">项目详情</el-menu-item>
+        <el-menu-item index="/">工作台</el-menu-item>
         <el-menu-item index="/video-manager">视频管理</el-menu-item>
-        <el-menu-item index="/image-manager">图片管理</el-menu-item>
+        <el-menu-item index="/content-workshop">内容工坊</el-menu-item>
         <el-menu-item index="/source-pool">素材池</el-menu-item>
         <el-menu-item :index="mediaMenuItemIndex">媒体平台管理</el-menu-item>
       </el-menu>

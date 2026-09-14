@@ -1,14 +1,27 @@
-// sidebar / admin shell
+// sidebar / admin shell —— 2026-09-14 内容工坊主题（纸灰暖底 / 克制蓝）
 $menuBg: #ffffff;
-$subMenuBg: #f5f7fa;
-$menuHover: #ecf5ff;
-$menuActiveBg: #e6f0ff;
-$menuText: #303133;
-$menuMuted: #909399;
-$pageBg: #f5f7fa;
+$subMenuBg: #f7f7f5;
+$menuHover: #f0f0ec;
+$menuActiveBg: #eaf0ff;
+$menuText: #1f2329;
+$menuMuted: #8a919d;
+$pageBg: #f7f7f5;
 $cardBg: #ffffff;
-$borderColor: #e4e7ed;
-$primaryColor: #409eff;
-$dangerColor: #f56c6c;
+$borderColor: #e3e6ea;
+$primaryColor: #2f6bff;
+$dangerColor: #c4453a;
 $shellHeaderHeight: 62px;
 $titleBarHeight: 30px;
+
+// 内容工坊语义色（只表达「要不要我动」，不做装饰）
+$okColor: #1a7f4f;
+$okDim: #e9f5ee;
+$warnColor: #b26a00;
+$warnDim: #fdf3e2;
+$dangerDim: #fbeceb;
+$accentDim: #eaf0ff;
+$ink: #1f2329;
+$ink2: #4e5561;
+$ink3: #8a919d;
+$line2: #eef0f2;
+$mono: "SF Mono", ui-monospace, Menlo, monospace;

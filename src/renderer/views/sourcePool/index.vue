@@ -377,7 +377,7 @@ export default {
 
 <style scoped>
 .source-pool-page .source-link {
-  color: #409eff;
+  color: #2f6bff;
   text-decoration: none;
   word-break: break-all;
 }

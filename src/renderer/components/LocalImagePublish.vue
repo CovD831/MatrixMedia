@@ -2070,7 +2070,7 @@ export default {
 .platform-leaf-proxy {
   margin-right: 4px;
   font-size: 12px;
-  color: #409eff;
+  color: #2f6bff;
 }
 .platform-statement-row {
   width: 100%;

@@ -42,3 +42,70 @@
   border-radius: 6px;
 }
 
+/* ===== 2026-09-14 内容工坊主题：全局统一（token 见 variables.scss） ===== */
+
+/* 主色统一：element-ui 蓝 #409eff → #2f6bff（全局，含按钮/链接/菜单/输入焦点） */
+.el-button--primary {
+  background-color: #2f6bff;
+  border-color: #2f6bff;
+  &:hover, &:focus {
+    background-color: #2556d6;
+    border-color: #2556d6;
+  }
+  &:active { background-color: #1f49b8; border-color: #1f49b8; }
+}
+.el-button--primary.is-plain,
+.el-button--primary.is-text {
+  color: #2f6bff;
+  background: #eaf0ff;
+  border-color: #c6d6ff;
+  &:hover, &:focus { background: #dbe7ff; border-color: #2f6bff; color: #2f6bff; }
+}
+.el-button--success {
+  background-color: #1a7f4f;
+  border-color: #1a7f4f;
+  &:hover, &:focus { background-color: #156a41; border-color: #156a41; }
+}
+.el-button--warning { background-color: #b26a00; border-color: #b26a00; }
+.el-button--danger { background-color: #c4453a; border-color: #c4453a; }
+a { color: #2f6bff; }
+.el-link.el-link--primary { color: #2f6bff; }
+.el-input.is-active .el-input__inner,
+.el-input__inner:focus {
+  border-color: #2f6bff !important;
+}
+.el-radio__input.is-checked .el-radio__inner,
+.el-checkbox__input.is-checked .el-checkbox__inner {
+  border-color: #2f6bff; background: #2f6bff;
+}
+.el-checkbox__input.is-checked + .el-checkbox__label { color: #2f6bff; }
+.el-loading-spinner .path { stroke: #2f6bff; }
+
+/* 字重两档化：element-ui 的 500 一律拉平到 400/600 */
+.el-button { font-weight: 400; }
+.el-table th.el-table__cell { font-weight: 600; }
+.el-form-item__label { font-weight: 400; color: #4e5561; }
+
+/* 表格：去斑马纹重、行悬停用暖灰 */
+.el-table { color: #4e5561; }
+.el-table th.el-table__cell { background: #fafaf8; color: #8a919d; }
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+  background: #fbfbfa;
+}
+.el-table__body tr.hover-row > td.el-table__cell { background-color: #f4f4f1 !important; }
+
+/* 弹窗/卡片边线统一 */
+.el-dialog, .el-card { border-radius: 10px; }
+.el-card { border: 1px solid #e3e6ea; box-shadow: none !important; }
+
+/* tag 圆角与字重 */
+.el-tag { border-radius: 5px; font-weight: 550; }
+
+/* 消息提示：左缘线风格 */
+.el-message { border-radius: 8px; border: 1px solid #e3e6ea; box-shadow: 0 4px 16px rgba(31,35,41,.08); }
+
+/* 工坊通用等宽字体（机器产出的数据） */
+.mono-num {
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 12px;
+}

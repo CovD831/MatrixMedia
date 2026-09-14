@@ -5,6 +5,7 @@ import { platform } from "os";
 import getCookie from "./getCookie";
 import { openDevTools, IsUseSysTitle, UseStartupChart } from "../config/const";
 import setIpc from "./ipcMain";
+import { registerWorkOrderIpc } from "./workOrders";
 import { winURL, loadingURL } from "../config/StaticPath";
 import baseMenu from "../config/menu";
 
@@ -12,6 +13,7 @@ import baseMenu from "../config/menu";
 let loadWindow = null;
 let mainWindow = null;
 setIpc.Mainfunc(IsUseSysTitle);
+registerWorkOrderIpc();
 // 版本以package.json为基准。
 const version = require("../../../package.json").version;
 

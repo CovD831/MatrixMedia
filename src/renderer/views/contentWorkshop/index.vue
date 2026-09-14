@@ -1,5 +1,5 @@
 <template>
-  <div class="page-shell workshop-page">
+  <div class="page-shell page-shell--full workshop-page">
     <div class="page-header">
       <h1 class="page-title">内容工坊</h1>
       <p class="page-desc">图文工单从选题到草稿箱的全生命周期。机器跑流程，你只出现在三个关口。</p>

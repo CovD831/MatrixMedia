@@ -12,9 +12,8 @@
           <el-button type="primary" @click="addDialogVisible = true"
             >添加素材</el-button
           >
-          <el-button type="success" plain @click="loadPool">刷新</el-button>
+          <el-button plain @click="loadPool">刷新</el-button>
           <el-button
-            type="warning"
             plain
             :disabled="!selectedItems.length"
             @click="batchMarkSelected"
@@ -88,13 +87,15 @@
                 v-if="scope.row.status === 'new'"
                 type="success"
                 size="mini"
+                plain
                 @click="markStatus(scope.row, 'selected')"
                 >选择</el-button
               >
               <el-button
                 v-if="scope.row.status === 'selected'"
-                type="warning"
+                type="success"
                 size="mini"
+                plain
                 @click="markStatus(scope.row, 'done')"
                 >完成</el-button
               >

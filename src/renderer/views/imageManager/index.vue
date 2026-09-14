@@ -12,22 +12,22 @@
           <el-button type="primary" @click="selectImageFile"
             >选择图片发布</el-button
           >
-          <el-button type="primary" plain @click="openDirectoryPublish"
+          <el-button plain @click="openDirectoryPublish"
             >目录批量发布</el-button
           >
-          <el-button type="success" @click="openArticlePublish"
+          <el-button plain @click="openArticlePublish"
             >发布文章</el-button
           >
         </div>
         <div class="toolbar-right">
           <span class="toolbar-label">帮助</span>
-          <el-button type="warning" plain @click="openFeedback"
+          <el-button size="small" plain @click="openFeedback"
             >问题反馈</el-button
           >
-          <el-button type="warning" plain @click="openQQGroup"
+          <el-button size="small" plain @click="openQQGroup"
             >加入作者QQ群</el-button
           >
-          <el-button type="danger" plain @click="openGitHubStar"
+          <el-button size="small" plain @click="openGitHubStar"
             >⭐ GitHub Star</el-button
           >
         </div>
@@ -81,11 +81,11 @@
             </el-table-column>
             <el-table-column label="操作" width="260">
               <template slot-scope="scope">
+                <div class="row-actions">
                 <el-button
                   v-if="canGetStatus(scope.row)"
                   type="primary"
                   size="mini"
-                  class="mb8"
                   :loading="isStatusLoading(scope.row)"
                   :disabled="isStatusLoading(scope.row)"
                   @click="handleGetStatus(scope.row)"
@@ -108,11 +108,11 @@
                   v-if="canRepublish(scope.row)"
                   type="warning"
                   size="mini"
-                  class="mb8"
                   @click="handleRepublish(scope.row)"
                 >
                   重新发布
                 </el-button>
+                </div>
               </template>
             </el-table-column>
           </el-table>
@@ -764,7 +764,14 @@ export default {
 .progress-count.fail {
   color: #f56c6c;
 }
-.mb8 {
-  margin-bottom: 8px;
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.row-actions .el-button + .el-button {
+  margin-left: 0;
 }
 </style>

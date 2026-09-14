@@ -1,4 +1,6 @@
 //to reset element-ui default css
+@import "./variables.scss";
+
  .el-upload {
    input[type="file"] {
      display: none !important;
@@ -108,4 +110,66 @@ a { color: #2f6bff; }
 .mono-num {
   font-family: "SF Mono", ui-monospace, Menlo, monospace;
   font-size: 12px;
+}
+
+/* ===== 按钮视觉语言统一（2026-09-14 二轮） =====
+   原则：全应用只有一个彩色动作色（主蓝 #2f6bff）。
+   其余一律中性：黑字白底灰边（默认）或浅灰 plain。
+   语义色（success/warning/danger）只在状态提示处出现，不再做按钮主视觉。 */
+.el-button {
+  height: auto;
+  padding: 10px 18px;
+  font-size: 13.5px;
+  border-radius: $btnRadius;
+  font-weight: 400;
+  transition: background-color .12s, border-color .12s, color .12s;
+}
+.el-button--small { padding: 7px 14px; font-size: 12.5px; border-radius: 6px; }
+.el-button--mini { padding: 5px 10px; font-size: 12px; border-radius: 6px; }
+.el-button + .el-button { margin-left: $btnGap; }
+
+/* 相邻不同组按钮的呼吸感：toolbar 由页面自行用 gap 排（见 index.scss .toolbar-inner） */
+
+/* 主按钮：蓝，圆角与字号同全局 */
+.el-button--primary {
+  background-color: #2f6bff;
+  border-color: #2f6bff;
+  &:hover, &:focus { background-color: #2556d6; border-color: #2556d6; }
+  &:active { background-color: #1f49b8; border-color: #1f49b8; }
+}
+.el-button--primary.is-plain,
+.el-button--primary.is-text {
+  color: #2f6bff;
+  background: #eef3ff;
+  border-color: #c6d6ff;
+  &:hover, &:focus { background: #dbe7ff; border-color: #2f6bff; color: #2f6bff; }
+}
+
+/* 降饱和语义色：保留识别度，去掉高饱和冲突 */
+.el-button--success {
+  background-color: #2e7d5b; border-color: #2e7d5b;
+  &:hover, &:focus { background-color: #276b4e; border-color: #276b4e; }
+}
+.el-button--warning {
+  background-color: #a8742f; border-color: #a8742f;
+  &:hover, &:focus { background-color: #94652a; border-color: #94652a; }
+}
+.el-button--danger {
+  background-color: #b5544a; border-color: #b5544a;
+  &:hover, &:focus { background-color: #a1493f; border-color: #a1493f; }
+}
+.el-button--success.is-plain,
+.el-button--warning.is-plain,
+.el-button--danger.is-plain {
+  background: #fafaf8; border-color: #e3e6ea;
+  &:hover, &:focus { background: #f4f4f1; border-color: #d5d9de; }
+}
+.el-button--success.is-plain { color: #2e7d5b; }
+.el-button--warning.is-plain { color: #a8742f; }
+.el-button--danger.is-plain { color: #b5544a; }
+
+/* text 按钮：去高亮蓝底，回归墨色链接感 */
+.el-button--text {
+  color: #2f6bff;
+  &:hover, &:focus { color: #2556d6; background: transparent; }
 }

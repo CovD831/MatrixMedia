@@ -25,3 +25,10 @@ $ink2: #4e5561;
 $ink3: #8a919d;
 $line2: #eef0f2;
 $mono: "SF Mono", ui-monospace, Menlo, monospace;
+
+// 统一间距/尺寸（2026-09-14 视觉语言统一）
+$btnGap: 12px;          // 按钮之间的水平间隔
+$btnHeight: 38px;       // 默认按钮高（medium 感）
+$btnHeightSm: 32px;
+$btnRadius: 8px;
+$shellMax: 1080px;      // 常规页内容列宽

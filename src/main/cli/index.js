@@ -443,6 +443,14 @@ async function runBatchDirPublish(v, cfg) {
             const msg =
               (payload && payload.message) || (ok ? "上传成功" : "上传失败");
             updateRecord(ok ? "success" : "failed", msg);
+            if (ok && payload.draftCountAfter != null) {
+              console.log(
+                JSON.stringify({
+                  draftCountBefore: payload.draftCountBefore,
+                  draftCountAfter: payload.draftCountAfter,
+                })
+              );
+            }
             finish(ok, msg);
           } else if (channel === "puppeteer-noLogin") {
             if (payload && payload.taskId != null && payload.taskId !== taskId)

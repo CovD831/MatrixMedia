@@ -318,61 +318,171 @@ export default async function (page, data, window, event) {
     "[xhs-image] 宿主 box=",
     JSON.stringify({ x: box.x, y: box.y, w: box.width, h: box.height })
   );
-  const jitterX = getRandomInt(-12, 12);
-  const jitterY = getRandomInt(-8, 8);
-  const baseX = isDraftMode ? 300 : 450;
-  const baseY = 40;
-  const cx = box.x + baseX + jitterX;
-  const cy = box.y + baseY + jitterY;
 
-  const targetText = isDraftMode ? "暂存离开" : "发布";
+  // 2026-09-14 修复：原实现按固定偏移(baseX=300/450, baseY=40)+抖动盲点，
+  // 不同窗口尺寸下会点偏（点到取消/空白），宿主消失即误判成功 → 草稿箱实际为空。
+  // 新实现：在宿主元素内定位真实可点击按钮（文本匹配「发布」/「暂存离开」），element.click() 精确点击。
   let clickedOk = false;
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    const preX = cx + getRandomInt(-20, 20);
-    const preY = cy + getRandomInt(-15, 15);
-    await page.mouse.move(preX, preY, { steps: getRandomInt(3, 8) });
+  let clickVia = "";
+  const targetText = isDraftMode ? "暂存离开" : "发布";
+  const btnCenter = await page.evaluate(
+    "(function(wantDraft){" +
+      "var host = document.querySelector('xhs-publish-btn') || document.querySelector('.publish-page-publish-btn');" +
+      "if (!host) return null;" +
+      "var want = wantDraft ? '暂存' : '发布';" +
+      "var els = [host].concat([].slice.call(host.querySelectorAll('*')));" +
+      "for (var i = 0; i < els.length; i++) {" +
+      "  var el = els[i];" +
+      "  var t = (el.textContent || '').replace(/\\s+/g, '');" +
+      "  if (!t || t.length > 12) continue;" +
+      "  if (t.indexOf(want) === -1) continue;" +
+      "  var r = el.getBoundingClientRect();" +
+      "  if (r.width < 10 || r.height < 10) continue;" +
+      "  var st = getComputedStyle(el);" +
+      "  if (st.visibility === 'hidden' || st.display === 'none' || st.pointerEvents === 'none') continue;" +
+      "  return { x: r.x + r.width / 2, y: r.y + r.height / 2, text: t };" +
+      "}" +
+      "return null;" +
+    "})(" + isDraftMode + ")"
+  );
+
+  if (btnCenter && typeof btnCenter.x === "number") {
+    console.log(
+      "[xhs-image] 定位到按钮「" + btnCenter.text + "」中心 (" +
+        Math.round(btnCenter.x) + "," + Math.round(btnCenter.y) + ")，精确点击"
+    );
+    await page.mouse.move(btnCenter.x, btnCenter.y, { steps: getRandomInt(3, 8) });
+    await page.waitForTimeout(getRandomInt(30, 80));
+    await page.mouse.click(btnCenter.x, btnCenter.y, { delay: 80 });
+    clickedOk = true;
+    clickVia = "element-center";
+  } else {
+    // 兜底：找不到内层按钮才退回旧的偏移盲点方案
+    console.warn("[xhs-image] 未定位到内层按钮，退回固定偏移点击（不推荐）");
+    const jitterX = getRandomInt(-12, 12);
+    const jitterY = getRandomInt(-8, 8);
+    const baseX = isDraftMode ? 300 : 450;
+    const baseY = 40;
+    const cx = box.x + baseX + jitterX;
+    const cy = box.y + baseY + jitterY;
+    await page.mouse.move(cx, cy, { steps: getRandomInt(3, 8) });
     await page.waitForTimeout(getRandomInt(30, 80));
     await page.mouse.click(cx, cy, { delay: 80 });
-    console.log(
-      `[xhs-image] 第 ${attempt} 次点击「${targetText}」at (${Math.round(cx)},${Math.round(cy)})`
-    );
-    if (attempt < 2) {
-      const secondClickDelay = getXhsSecondClickDelayMs();
-      console.log(`[xhs-image] 等待 ${secondClickDelay}ms 后判断是否第二次点击`);
-      await page.waitForTimeout(secondClickDelay);
-    } else {
-      await waitXhs(page, 2500, 4500);
-    }
-    const stillThere = await page.evaluate(
-      "(function(){return !!document.querySelector('xhs-publish-btn');})()"
-    );
-    if (!stillThere) {
-      console.log(`[xhs-image] xhs-publish-btn 宿主已消失，发布动作生效`);
-      clickedOk = true;
-      break;
-    }
+    clickedOk = true;
+    clickVia = "offset-fallback";
   }
 
   if (!clickedOk) {
-    const attrDump = await page.evaluate(
-      "(function(){var h=document.querySelector('xhs-publish-btn');if(!h)return 'host-gone';var o={};for(var i=0;i<h.attributes.length;i++){o[h.attributes[i].name]=h.attributes[i].value;}return o;})()"
-    );
-    console.warn("[xhs-image] 2 次点击后宿主仍在，属性:", JSON.stringify(attrDump));
     throw new Error(`未能成功点击「${targetText}」按钮`);
   }
 
-  console.log(
-    isDraftMode ? "✅ 小红书图文已保存草稿" : "✅ 小红书图文上传成功"
+  // 2026-09-14 修复第二部分：点击后验证真实结果，不信宿主消失。
+  // 成功信号（草稿模式）：页面出现确认 toast（「已保存」「保存成功」「已存草稿」「稍后再发」等）
+  //   或 URL 跳转离开发布页。注意：右上角常驻角标「草稿箱(N)」不能作为信号（永远在）。
+  // 失败信号：发布页仍在 + 无确认 toast（如误点取消/校验报错），此时应重试一次再放弃。
+  const draftCountBefore = await page.evaluate(
+    "(function(){var m=(document.body?document.body.innerText:'').match(/草稿箱\\((\\d+)\\)/);return m?parseInt(m[1]):null;})()"
   );
+  const verifyDraftSaved = async () => {
+    try {
+      const r = await page.evaluate(
+        "(function(){" +
+          "var hit = document.body ? document.body.innerText : '';" +
+          "if (!hit) return { toast: false, count: null };" +
+          "var okWords = ['已保存', '保存成功', '已存草稿', '稍后再发', '已暂存'];" +
+          "var toast = false;" +
+          "for (var i = 0; i < okWords.length; i++) { if (hit.indexOf(okWords[i]) !== -1) { toast = true; break; } }" +
+          "var m = hit.match(/草稿箱\\((\\d+)\\)/);" +
+          "return { toast: toast, count: m ? parseInt(m[1]) : null };" +
+        "})()"
+      );
+      // 计数增长是最强信号
+      if (typeof r.count === "number" && typeof draftCountBefore === "number" && r.count > draftCountBefore) {
+        return { toast: true, count: r.count, via: "count-increase" };
+      }
+      return r;
+    } catch (_) {
+      return { toast: false, count: null };
+    }
+  };
+
+  let verified = false;
+  let verifyVia = "";
+  for (let vAttempt = 1; vAttempt <= 2 && !verified; vAttempt++) {
+    if (vAttempt > 1) {
+      console.warn("[xhs-image] 第 " + vAttempt + " 次验证前重试点击（上次未确认成功）");
+      const retryCenter = await page.evaluate(
+        "(function(wantDraft){" +
+          "var host = document.querySelector('xhs-publish-btn') || document.querySelector('.publish-page-publish-btn');" +
+          "if (!host) return null;" +
+          "var want = wantDraft ? '暂存' : '发布';" +
+          "var els = [host].concat([].slice.call(host.querySelectorAll('*')));" +
+          "for (var i = 0; i < els.length; i++) {" +
+          "  var el = els[i];" +
+          "  var t = (el.textContent || '').replace(/\\s+/g, '');" +
+          "  if (!t || t.length > 12) continue;" +
+          "  if (t.indexOf(want) === -1) continue;" +
+          "  var r = el.getBoundingClientRect();" +
+          "  if (r.width < 10 || r.height < 10) continue;" +
+          "  return { x: r.x + r.width / 2, y: r.y + r.height / 2 };" +
+          "}" +
+          "return null;" +
+        "})(" + isDraftMode + ")"
+      );
+      if (retryCenter) {
+        await page.mouse.click(retryCenter.x, retryCenter.y, { delay: 80 });
+      }
+    }
+    // 等确认信号（toast 出现、角标计数+1 或页面跳转），最长 20s
+    for (let w = 0; w < 10; w++) {
+      await page.waitForTimeout(2000);
+      const url = page.url();
+      if (/note-manager|publish\/success|home/i.test(url) && !/target=image/.test(url)) {
+        verified = true;
+        verifyVia = "url-jump";
+        break;
+      }
+      const vr = await verifyDraftSaved();
+      if (vr.toast) {
+        verified = true;
+        verifyVia = vr.via || "toast";
+        break;
+      }
+    }
+  }
+
+  if (!verified) {
+    // 不再假成功：明确抛错，让上层标记失败并告警
+    throw new Error(
+      "[xhs-image] 点击「" + targetText + "」后 2 次尝试均未验证到草稿保存成功信号（toast/计数/跳转），按失败处理（点击前角标计数=" + draftCountBefore + "）"
+    );
+  }
+  console.log(
+    "[xhs-image] 已验证草稿保存成功信号（clickVia=" + (clickVia || "unknown") + ", verifyVia=" + verifyVia + "）"
+  );
+  // 2026-09-14：草稿模式下读取最终角标计数，作为服务端确认的硬证据随结果返回
+  let finalDraftCount = null;
+  if (isDraftMode) {
+    try {
+      await page.waitForTimeout(2500);
+      finalDraftCount = await page.evaluate(
+        "(function(){var m=(document.body?document.body.innerText:'').match(/草稿箱\\((\\d+)\\)/);return m?parseInt(m[1]):null;})()"
+      );
+      console.log("[xhs-image] 草稿箱最终计数:", finalDraftCount, "（点击前:", draftCountBefore + "）");
+    } catch (_) {}
+  }
+  // 草稿模式延迟关窗到 15s
   setTimeout(() => {
     event.reply("puppeteerFile-done", {
       ...data,
       status: true,
+      draftCountBefore: draftCountBefore,
+      draftCountAfter: finalDraftCount,
       message: isDraftMode ? "保存草稿成功" : "上传成功",
     });
     maybeClosePublishWindow(
       isDraftMode ? { ...data, closeWindowAfterPublish: true } : data,
       window
     );
-  }, 5000);
+  }, isDraftMode ? 15000 : 5000);
 }
